@@ -10,13 +10,14 @@ import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
+import gestiondememoria.Partition;
+import java.util.ArrayList;
 /**
  *
  * @author Omar Beltrán
  */
 public class PartitionStaticMultiValue extends javax.swing.JFrame {
-
+    private ArrayList<Partition> partitions = new ArrayList(); 
     private int partitionSize;
     private static final int diskSize = 100;
     private static final int LIMSUP = 200;
@@ -24,12 +25,14 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     private int nPartition;
     private JLabel label[] = new JLabel[200];
     /**
-     * Creates new form PartitionDisk
+     * Creates new form PartitionStaticMultiValue
      */
     public PartitionStaticMultiValue() {
+        
         initComponents();
         setLocationRelativeTo(this);
         partitionSize = 20;//representa un tamaño en disco de 20 Gb
+        drawEmptyHardDisk();
     }
 
     /**
@@ -41,7 +44,6 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblDisk = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuAction = new javax.swing.JMenu();
         jMenuPartitionDisk = new javax.swing.JMenuItem();
@@ -53,12 +55,6 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         jMenuItemCredits = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        lblDisk.setBackground(new java.awt.Color(255, 255, 255));
-        lblDisk.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblDisk.setText("100 Gb ");
-        lblDisk.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        lblDisk.setOpaque(true);
 
         jMenuAction.setText("Actions");
 
@@ -118,30 +114,29 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblDisk, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGap(0, 520, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblDisk, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 322, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuPartitionDiskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuPartitionDiskActionPerformed
-        int partitionNum = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el numero de particiones a crear"));
-        if (partitionSize == 0) {
-            JOptionPane.showMessageDialog(null,"El tamaño de bloque no puede ser 0","ERROR",JOptionPane.ERROR_MESSAGE);
+        String partitionName = String.valueOf(JOptionPane.showInputDialog("Ingrese el nombre de la partición"));
+        if (!partitionName.isEmpty()) {
+            int partitionSize = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el tamaño de la partición"));
+            if (partitionSize > 0) {
+                createPartition(partitionName, partitionSize);
+            }    
+            else {
+                JOptionPane.showMessageDialog(null,"El tamaño de la partición debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
+            }
         }
         else {
-            createLabel(partitionNum);
-            paintBlocks(1, partitionNum);
+            JOptionPane.showMessageDialog(null,"Debe asignar un nombre a la partición","ERROR",JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jMenuPartitionDiskActionPerformed
 
@@ -167,11 +162,16 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null,"Este programa fué desarrollado y diseñado por Omar José Beltrán Rodríguez","Creditos",JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jMenuItemCreditsActionPerformed
 
-    private void paintBlocks(int start, int end) {
-        lblDisk.setVisible(false);
-        for (int index = start ; index <= end ; index++) {
-            label[index].setBackground(getColor(index%8));
-        }
+    private void createPartition(String partitionName, int partitionSize) {
+        Partition partition = new Partition();
+        partitions. add(partition);
+    }
+    
+    private void drawPartition(Partition partition) {
+        //lblDisk.setVisible(false);
+        //for (int index = start ; index <= end ; index++) {
+        //    label[index].setBackground(getColor(index%8));
+        //}
     }
     
     private Color getColor(int color) {
@@ -193,6 +193,31 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
             default:
                 return Color.ORANGE;
         }
+    }
+    
+    void drawEmptyHardDisk() {
+        Partition partition = new Partition();
+        if (partitions.isEmpty()) {
+            partitions. add(partition);
+            int X = 5, Y = 5, sizeX = 500+X, sizeY = 300+Y;
+            Font fuente = new Font("Arial", 3, 14);
+            label[0]= new JLabel("lbl" +0);
+            label[0].setBounds(X, Y, sizeX, sizeY);
+            
+            //edit properties
+            label[0].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+            label[0].setBackground(Color.WHITE);
+            label[0].setText("Empty Hard Disk Size: "+partition.getPartitionSize()+" Gb");
+            label[0].setFont(fuente);
+            label[0].setOpaque(true);
+            label[0].setHorizontalAlignment(0);
+            label[0].setVerticalAlignment(0);
+            label[0].setHorizontalTextPosition(11);
+            label[0].setVerticalTextPosition(0);
+            add(label[0]);
+        }
+        else 
+            JOptionPane.showMessageDialog(null,"No es posible crear disco, ya existe uno","ERROR",JOptionPane.ERROR_MESSAGE);
     }
     
     void createLabel(int numberLabels) {
@@ -266,6 +291,5 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItemCredits;
     private javax.swing.JMenuItem jMenuPartitionDisk;
     private javax.swing.JMenuItem jMenuPartitionSize;
-    private javax.swing.JLabel lblDisk;
     // End of variables declaration//GEN-END:variables
 }
