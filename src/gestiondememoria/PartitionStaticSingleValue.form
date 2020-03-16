@@ -43,7 +43,6 @@
             <MenuItem class="javax.swing.JMenuItem" name="jMenuPartitionSize">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Partition Size"/>
-                <Property name="actionCommand" type="java.lang.String" value="Partition Size"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuPartitionSizeActionPerformed"/>
