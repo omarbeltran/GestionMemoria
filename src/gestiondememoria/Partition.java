@@ -5,11 +5,41 @@
  */
 package gestiondememoria;
 
+import java.awt.Point;
+
 /**
  *
  * @author Omar Beltrán
  */
 public class Partition {
+
+    /**
+     * @return the sizeX
+     */
+    public int getSizeX() {
+        return sizeX;
+    }
+
+    /**
+     * @param sizeX the sizeX to set
+     */
+    public void setSizeX(int sizeX) {
+        this.sizeX = sizeX;
+    }
+
+    /**
+     * @return the sizeY
+     */
+    public int getSizeY() {
+        return sizeY;
+    }
+
+    /**
+     * @param sizeY the sizeY to set
+     */
+    public void setSizeY(int sizeY) {
+        this.sizeY = sizeY;
+    }
     
     /**
      * las dimensiones por defecto serán de 500 en X, 300 en Y
@@ -19,8 +49,8 @@ public class Partition {
         this.partitionSize = 100;
         this.startX = 5;
         this.startY = 5;
-        this.endX = startX+500;
-        this.endY = startY+300;
+        this.endX = startX+sizeX;
+        this.endY = startY+sizeY;
     }
     
     /**
@@ -32,7 +62,7 @@ public class Partition {
         this.partitionSize = 20;
         this.startX = 5;
         this.startY = 5;
-        this.endX = startX+500;
+        this.endX = startX+sizeX;
         this.endY = startY+60;
     }
     
@@ -45,6 +75,14 @@ public class Partition {
         this.endY = endY;
     }
     
+    public Partition(String name, int size, Point startPoint, Point endPoint) {
+        this.partitionName = name;
+        this.partitionSize = size;
+        this.startX = startPoint.x;
+        this.startY = startPoint.y;
+        this.endX = endPoint.x;
+        this.endY = endPoint.y;
+    }
     /**
      * @return the startX
      */
@@ -129,6 +167,8 @@ public class Partition {
         this.partitionName = partitionName;
     }
     
+    private int sizeX = 500;
+    private int sizeY = 300;
     private int startX;
     private int startY;
     private int endX;

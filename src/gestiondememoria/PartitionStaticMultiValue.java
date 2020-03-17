@@ -11,14 +11,14 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import gestiondememoria.Partition;
+import java.awt.Point;
 import java.util.ArrayList;
 /**
  *
  * @author Omar Beltrán
  */
 public class PartitionStaticMultiValue extends javax.swing.JFrame {
-    private ArrayList<Partition> partitions = new ArrayList(); 
-    private int partitionSize;
+    private final ArrayList<Partition> partitions = new ArrayList(); 
     private static final int diskSize = 100;
     private static final int LIMSUP = 200;
     private static final int LIMINF = 1;
@@ -31,7 +31,6 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         
         initComponents();
         setLocationRelativeTo(this);
-        partitionSize = 20;//representa un tamaño en disco de 20 Gb
         drawEmptyHardDisk();
     }
 
@@ -49,8 +48,6 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         jMenuPartitionDisk = new javax.swing.JMenuItem();
         jMenuClearAll = new javax.swing.JMenuItem();
         jMenuExit = new javax.swing.JMenuItem();
-        jMenuConfiguration = new javax.swing.JMenu();
-        jMenuPartitionSize = new javax.swing.JMenuItem();
         jMenuHelp = new javax.swing.JMenu();
         jMenuItemCredits = new javax.swing.JMenuItem();
 
@@ -83,18 +80,6 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         jMenuAction.add(jMenuExit);
 
         jMenuBar1.add(jMenuAction);
-
-        jMenuConfiguration.setText("Configuration");
-
-        jMenuPartitionSize.setText("Partition Size");
-        jMenuPartitionSize.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuPartitionSizeActionPerformed(evt);
-            }
-        });
-        jMenuConfiguration.add(jMenuPartitionSize);
-
-        jMenuBar1.add(jMenuConfiguration);
 
         jMenuHelp.setText("Help");
 
@@ -142,36 +127,70 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
 
     private void jMenuClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuClearAllActionPerformed
         nPartition = 1;
+        drawEmptyHardDisk();
     }//GEN-LAST:event_jMenuClearAllActionPerformed
 
     private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
         System.exit(1);
     }//GEN-LAST:event_jMenuExitActionPerformed
 
-    private void jMenuPartitionSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuPartitionSizeActionPerformed
-        int partitionSizeTmp = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el tamaño de la partición"));
-        if (partitionSizeTmp > 0) {
-            partitionSize = partitionSizeTmp;
-        }
-        else {
-            JOptionPane.showMessageDialog(null,"El tamaño de bloque debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_jMenuPartitionSizeActionPerformed
-
     private void jMenuItemCreditsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemCreditsActionPerformed
         JOptionPane.showMessageDialog(null,"Este programa fué desarrollado y diseñado por Omar José Beltrán Rodríguez","Creditos",JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jMenuItemCreditsActionPerformed
 
     private void createPartition(String partitionName, int partitionSize) {
-        Partition partition = new Partition();
+        Partition partition = new Partition(partitionName, partitionSize, 
+                    getStartPoint(partitionSize), getEndPoint(partitionSize));
         partitions. add(partition);
+        drawPartition(partition);
+    }
+    
+    private Point getStartPoint(int sizePartition) {
+        Point startPoint = new Point();
+        int index = partitions.size();
+        if(index > 1) {
+            startPoint.x = (partitions.get(index).getEndX())-partitions.get(index).getSizeX();
+            startPoint.y = partitions.get(index).getStartY();
+        }else {
+            startPoint.x = 5;
+            startPoint.y = 5;
+        }
+        return startPoint;
+    }
+    
+    private Point getEndPoint(int partitionSize) {
+        Point endPoint = new Point();
+        int index = partitions.size();
+        if(index > 1) {
+            endPoint.x = partitions.get(index).getEndX();
+            endPoint.y = partitions.get(index).getEndY();
+        }else {
+            endPoint.x = 500;
+            endPoint.y = 100;
+        }
+        return endPoint;
     }
     
     private void drawPartition(Partition partition) {
-        //lblDisk.setVisible(false);
-        //for (int index = start ; index <= end ; index++) {
-        //    label[index].setBackground(getColor(index%8));
-        //}
+        int index = partitions.size();
+        if(index > 1) {
+            int X = 5, Y = 5, sizeX = 500+X, sizeY = 300+Y;
+            Font fuente = new Font("Arial", 3, 14);
+            label[0]= new JLabel("lbl" +0);
+            label[0].setBounds(X, Y, sizeX, sizeY);
+            
+            //edit properties
+            label[0].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+            label[0].setBackground(Color.WHITE);
+            label[0].setText("Empty Hard Disk Size: "+partition.getPartitionSize()+" Gb");
+            label[0].setFont(fuente);
+            label[0].setOpaque(true);
+            label[0].setHorizontalAlignment(0);
+            label[0].setVerticalAlignment(0);
+            label[0].setHorizontalTextPosition(11);
+            label[0].setVerticalTextPosition(0);
+            add(label[0]);
+        }
     }
     
     private Color getColor(int color) {
@@ -285,11 +304,9 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     private javax.swing.JMenu jMenuAction;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuClearAll;
-    private javax.swing.JMenu jMenuConfiguration;
     private javax.swing.JMenuItem jMenuExit;
     private javax.swing.JMenu jMenuHelp;
     private javax.swing.JMenuItem jMenuItemCredits;
     private javax.swing.JMenuItem jMenuPartitionDisk;
-    private javax.swing.JMenuItem jMenuPartitionSize;
     // End of variables declaration//GEN-END:variables
 }
