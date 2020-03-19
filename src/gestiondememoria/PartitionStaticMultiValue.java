@@ -127,6 +127,8 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
 
     private void jMenuClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuClearAllActionPerformed
         nPartition = 1;
+        partitions.removeAll(partitions);
+        dropLabels();
         drawEmptyHardDisk();
     }//GEN-LAST:event_jMenuClearAllActionPerformed
 
@@ -138,19 +140,25 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null,"Este programa fué desarrollado y diseñado por Omar José Beltrán Rodríguez","Creditos",JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jMenuItemCreditsActionPerformed
 
+    private void dropLabels() {
+        
+        label = null;
+        label = new JLabel[200];
+    }
+    
     private void createPartition(String partitionName, int partitionSize) {
         Partition partition = new Partition(partitionName, partitionSize, 
                     getStartPoint(partitionSize), getEndPoint(partitionSize));
-        partitions. add(partition);
         drawPartition(partition);
+        partitions.add(partition);
     }
     
     private Point getStartPoint(int sizePartition) {
         Point startPoint = new Point();
         int index = partitions.size();
         if(index > 1) {
-            startPoint.x = (partitions.get(index).getEndX())-partitions.get(index).getSizeX();
-            startPoint.y = partitions.get(index).getStartY();
+            startPoint.x = (partitions.get(index-1).getEndX())-partitions.get(index-1).getSizeX();
+            startPoint.y = partitions.get(index-1).getStartY();
         }else {
             startPoint.x = 5;
             startPoint.y = 5;
@@ -162,8 +170,8 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         Point endPoint = new Point();
         int index = partitions.size();
         if(index > 1) {
-            endPoint.x = partitions.get(index).getEndX();
-            endPoint.y = partitions.get(index).getEndY();
+            endPoint.x = partitions.get(index-1).getEndX();
+            endPoint.y = partitions.get(index-1).getEndY();
         }else {
             endPoint.x = 500;
             endPoint.y = 100;
@@ -173,23 +181,29 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     
     private void drawPartition(Partition partition) {
         int index = partitions.size();
-        if(index > 1) {
-            int X = 5, Y = 5, sizeX = 500+X, sizeY = 300+Y;
+        if(index != 1) {
+            label[0].setVisible(false);
+            Point startPoint = getStartPoint(partition.getPartitionSize());
+            Point endPoint = getEndPoint(partition.getPartitionSize());
+            //int X = 5, Y = 5, sizeX = 500+X, sizeY = 300+Y;
             Font fuente = new Font("Arial", 3, 14);
-            label[0]= new JLabel("lbl" +0);
-            label[0].setBounds(X, Y, sizeX, sizeY);
+            label[index]= new JLabel("lbl" +index);
+            label[index].setBounds(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
             
             //edit properties
-            label[0].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
-            label[0].setBackground(Color.WHITE);
-            label[0].setText("Empty Hard Disk Size: "+partition.getPartitionSize()+" Gb");
-            label[0].setFont(fuente);
-            label[0].setOpaque(true);
-            label[0].setHorizontalAlignment(0);
-            label[0].setVerticalAlignment(0);
-            label[0].setHorizontalTextPosition(11);
-            label[0].setVerticalTextPosition(0);
-            add(label[0]);
+            label[index].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+            label[index].setBackground(Color.RED);
+            label[index].setText("Partition "+partition.getPartitionName()+" Size "+partition.getPartitionSize()+" Gb");
+            label[index].setFont(fuente);
+            label[index].setOpaque(true);
+            label[index].setHorizontalAlignment(0);
+            label[index].setVerticalAlignment(0);
+            label[index].setHorizontalTextPosition(11);
+            label[index].setVerticalTextPosition(0);
+            add(label[index]);
+        }
+        else { //significa que está el disco vacío
+            
         }
     }
     
