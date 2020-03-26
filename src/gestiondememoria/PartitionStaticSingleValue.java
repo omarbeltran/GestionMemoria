@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 public class PartitionStaticSingleValue extends javax.swing.JFrame {
 
     private int partitionSize;
-    private static final int diskSize = 100;
+    private static int diskSize = 100;
     private static final int LIMSUP = 200;
     private static final int LIMINF = 1;
     private int nPartition;
@@ -28,6 +28,7 @@ public class PartitionStaticSingleValue extends javax.swing.JFrame {
      */
     public PartitionStaticSingleValue() {
         initComponents();
+        this.setTitle("Particiones estáticas un sólo tamaño");
         setLocationRelativeTo(this);
         partitionSize = 20;//representa un tamaño en disco de 20 Gb
     }
@@ -45,7 +46,6 @@ public class PartitionStaticSingleValue extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuAction = new javax.swing.JMenu();
         jMenuPartitionDisk = new javax.swing.JMenuItem();
-        jMenuClearAll = new javax.swing.JMenuItem();
         jMenuExit = new javax.swing.JMenuItem();
         jMenuConfiguration = new javax.swing.JMenu();
         jMenuPartitionSize = new javax.swing.JMenuItem();
@@ -70,14 +70,6 @@ public class PartitionStaticSingleValue extends javax.swing.JFrame {
         });
         jMenuAction.add(jMenuPartitionDisk);
 
-        jMenuClearAll.setText("Reset");
-        jMenuClearAll.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuClearAllActionPerformed(evt);
-            }
-        });
-        jMenuAction.add(jMenuClearAll);
-
         jMenuExit.setText("Exit");
         jMenuExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -90,7 +82,7 @@ public class PartitionStaticSingleValue extends javax.swing.JFrame {
 
         jMenuConfiguration.setText("Configuration");
 
-        jMenuPartitionSize.setText("Partition Size");
+        jMenuPartitionSize.setText("Disk Size");
         jMenuPartitionSize.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuPartitionSizeActionPerformed(evt);
@@ -145,21 +137,17 @@ public class PartitionStaticSingleValue extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuPartitionDiskActionPerformed
 
-    private void jMenuClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuClearAllActionPerformed
-        nPartition = 1;
-    }//GEN-LAST:event_jMenuClearAllActionPerformed
-
     private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
         System.exit(1);
     }//GEN-LAST:event_jMenuExitActionPerformed
 
     private void jMenuPartitionSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuPartitionSizeActionPerformed
-        int partitionSizeTmp = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el tamaño de la partición"));
+        int partitionSizeTmp = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el tamaño del disco"));
         if (partitionSizeTmp > 0) {
-            partitionSize = partitionSizeTmp;
+            diskSize = partitionSizeTmp;
         }
         else {
-            JOptionPane.showMessageDialog(null,"El tamaño de bloque debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null,"El tamaño de disco debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jMenuPartitionSizeActionPerformed
 
@@ -259,7 +247,6 @@ public class PartitionStaticSingleValue extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenuAction;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuClearAll;
     private javax.swing.JMenu jMenuConfiguration;
     private javax.swing.JMenuItem jMenuExit;
     private javax.swing.JMenu jMenuHelp;

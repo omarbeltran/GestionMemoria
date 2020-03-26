@@ -1,6 +1,6 @@
 /*
  * Desarrollar un programa o programas que simulen lo siguiente:
-1 Gestiòn de memoria:
+1 Gestión de memoria:
 a. Reubicación contigua simple
 b. Particiones estáticas un sólo tamaño
 c. Particiones estáticas de varios tamaños
@@ -8,7 +8,7 @@ d. Particiones dinámicas.
 e. Segmentación
 f. Paginación  
 Comparar y medir la fragmentaciòn después de terminar la ubicación de los archivos en memoria
-
+http://sistemasopers.blogspot.com/2015/09/particiones-fijas-y-dinamicas.html
  */
 package gestiondememoria;
 
@@ -35,6 +35,7 @@ public final class RCS extends javax.swing.JFrame {
      */
     public RCS() {
         initComponents();
+        this.setTitle("Reubicación contigua simple");
         setLocationRelativeTo(this);
         blockSize = 20;
         nFile = 1;

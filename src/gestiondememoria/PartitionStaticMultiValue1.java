@@ -8,17 +8,24 @@ package gestiondememoria;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import java.awt.Point;
-import java.util.ArrayList;
 /**
  *
  * @author Omar Beltrán
  */
-public class PartitionStaticMultiValue extends javax.swing.JFrame {
-    private final ArrayList<Partition> partitions = new ArrayList(); 
+public class PartitionStaticMultiValue1 extends javax.swing.JFrame {
     private static final int diskSize = 100;
+    private double diskAvaibleSize;
+    private int partitionSize = 0; 
+    private String partitionName;
+    private final int maxSizeX = 500;
+    private final int maxSizeY = 300;
+    private int startX = 0;
+    private int startY = 0;
+    private int endX = 0;
+    private int endY = 0;
     private static final int LIMSUP = 200;
     private static final int LIMINF = 1;
     private int nPartition;
@@ -26,9 +33,10 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     /**
      * Creates new form PartitionStaticMultiValue
      */
-    public PartitionStaticMultiValue() {
+    public PartitionStaticMultiValue1() {
         
         initComponents();
+        this.setTitle("Particiones estáticas de varios tamaños");
         setLocationRelativeTo(this);
         drawEmptyHardDisk();
     }
@@ -109,11 +117,11 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuPartitionDiskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuPartitionDiskActionPerformed
-        String partitionName = String.valueOf(JOptionPane.showInputDialog("Ingrese el nombre de la partición"));
+        partitionName = String.valueOf(JOptionPane.showInputDialog("Ingrese el nombre de la partición"));
         if (!partitionName.isEmpty()) {
-            int partitionSize = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el tamaño de la partición"));
+            partitionSize = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el tamaño de la partición"));
             if (partitionSize > 0) {
-                createPartition(partitionName, partitionSize);
+                drawPartition(partitionName, partitionSize);
             }    
             else {
                 JOptionPane.showMessageDialog(null,"El tamaño de la partición debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
@@ -125,10 +133,12 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuPartitionDiskActionPerformed
 
     private void jMenuClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuClearAllActionPerformed
-        nPartition = 1;
-        partitions.removeAll(partitions);
-        dropLabels();
-        drawEmptyHardDisk();
+        label[0].setVisible(true);
+        label[1].setVisible(false);
+        label[2].setVisible(false);
+        label[3].setVisible(false);
+        label[4].setVisible(false);
+        diskAvaibleSize = 300;
     }//GEN-LAST:event_jMenuClearAllActionPerformed
 
     private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
@@ -140,69 +150,94 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItemCreditsActionPerformed
 
     private void dropLabels() {
-        
         label = null;
         label = new JLabel[200];
     }
     
-    private void createPartition(String partitionName, int partitionSize) {
-        Partition partition = new Partition(partitionName, partitionSize, 
-                    getStartPoint(partitionSize), getEndPoint(partitionSize));
-        drawPartition(partition);
-        partitions.add(partition);
-    }
-    
-    private Point getStartPoint(int sizePartition) {
-        Point startPoint = new Point();
-        int index = partitions.size();
-        if(index > 1) {
-            startPoint.x = (partitions.get(index-1).getEndX())-partitions.get(index-1).getSizeX();
-            startPoint.y = partitions.get(index-1).getStartY();
-        }else {
-            startPoint.x = 5;
-            startPoint.y = 5;
-        }
-        return startPoint;
-    }
-    
-    private Point getEndPoint(int partitionSize) {
-        Point endPoint = new Point();
-        int index = partitions.size();
-        if(index > 1) {
-            endPoint.x = partitions.get(index-1).getEndX();
-            endPoint.y = partitions.get(index-1).getEndY();
-        }else {
-            endPoint.x = 500;
-            endPoint.y = 100;
-        }
-        return endPoint;
-    }
-    
-    private void drawPartition(Partition partition) {
-        int index = partitions.size();
-        if(index != 1) {
-            label[0].setVisible(false);
-            Point startPoint = getStartPoint(partition.getPartitionSize());
-            Point endPoint = getEndPoint(partition.getPartitionSize());
-            //int X = 5, Y = 5, sizeX = 500+X, sizeY = 300+Y;
-            Font fuente = new Font("Arial", 3, 14);
-            label[index]= new JLabel("lbl" +index);
-            label[index].setBounds(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+    private void drawPartition(String partitionName, int partitionSize) {
+        nPartition++;
+        int index = nPartition;
+        label[0].setVisible(false);
+        double percentageDiskPartition = (double)((partitionSize*100)/diskSize)/100;
+        int sizePartition = (int)(maxSizeY*percentageDiskPartition);
+        if((diskAvaibleSize - sizePartition)>= 0) {
+        getDimensionPartition();
+        Font fuente = new Font("Arial", 3, 14);
+        label[index]= new JLabel("lbl" +index);
+        label[index].setBounds(startX, startY, endX, endY);
             
-            //edit properties
-            label[index].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
-            label[index].setBackground(Color.RED);
-            label[index].setText("Partition "+partition.getPartitionName()+" Size "+partition.getPartitionSize()+" Gb");
-            label[index].setFont(fuente);
-            label[index].setOpaque(true);
-            label[index].setHorizontalAlignment(0);
-            label[index].setVerticalAlignment(0);
-            label[index].setHorizontalTextPosition(11);
-            label[index].setVerticalTextPosition(0);
-            add(label[index]);
+        //edit properties
+        label[index].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+        label[index].setBackground(getColor(nPartition));
+        label[index].setText("Partition "+partitionName+" Size "+partitionSize+" Gb");
+        label[index].setFont(fuente);
+        label[index].setOpaque(true);
+        label[index].setHorizontalAlignment(0);
+        label[index].setVerticalAlignment(0);
+        label[index].setHorizontalTextPosition(11);
+        label[index].setVerticalTextPosition(0);
+        add(label[index]);
+        this.repaint();
         }
-        else { //significa que está el disco vacío
-            
+        else {
+            JOptionPane.showMessageDialog(null,"Espacio en disco insuficiente","ERROR",JOptionPane.ERROR_MESSAGE);
+            nPartition--;
+        }    
+    }
+    
+    private void getDimensionPartition() {
+        switch (nPartition) {
+            case 1:
+                startX = 5;
+                startY = 5;
+                endX = 505;
+                endY = 30;
+                diskAvaibleSize -= endY;
+                break;
+            case 2:
+                startX = 5;
+                startY = 35;
+                endX = 505;
+                endY = 60;
+                diskAvaibleSize -= endY;
+                break;
+            case 3:
+                startX = 5;
+                startY = 95;
+                endX = 505;
+                endY = 90;
+                diskAvaibleSize -= endY;
+                break;
+            case 4:
+                startX = 5;
+                startY = 185;
+                endX = 505;
+                endY = 120;
+                diskAvaibleSize -= endY;
+                break;
+            case 5:
+                startX = 5;
+                startY = 5;
+                endX = 505;
+                endY = 120;
+                diskAvaibleSize -= endY;
+                break;
+            case 6:
+                startX = 5;
+                startY = 125;
+                endX = 505;
+                endY = 90;
+                diskAvaibleSize -= endY;
+                break;
+            case 7:
+                startX = 5;
+                startY = 215;
+                endX = 505;
+                endY = 90;
+                diskAvaibleSize -= endY;
+                break;
+            default:
+                break;
         }
     }
     
@@ -227,33 +262,30 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         }
     }
     
-    void drawEmptyHardDisk() {
-        Partition partition = new Partition();
-        if (partitions.isEmpty()) {
-            partitions. add(partition);
-            int X = 5, Y = 5, sizeX = 500+X, sizeY = 300+Y;
-            Font fuente = new Font("Arial", 3, 14);
-            label[0]= new JLabel("lbl" +0);
-            label[0].setBounds(X, Y, sizeX, sizeY);
+    final void drawEmptyHardDisk() {
+        diskAvaibleSize = 300;
+        int X = 5, Y = 5, sizeX = maxSizeX+X, sizeY = maxSizeY+Y;
+        startX = startY = 5;
+        endX = endY = 5; 
+        Font fuente = new Font("Arial", 3, 14);
+        label[0]= new JLabel("lbl" +0);
+        label[0].setBounds(X, Y, sizeX, sizeY);
             
-            //edit properties
-            label[0].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
-            label[0].setBackground(Color.WHITE);
-            label[0].setText("Empty Hard Disk Size: "+partition.getPartitionSize()+" Gb");
-            label[0].setFont(fuente);
-            label[0].setOpaque(true);
-            label[0].setHorizontalAlignment(0);
-            label[0].setVerticalAlignment(0);
-            label[0].setHorizontalTextPosition(11);
-            label[0].setVerticalTextPosition(0);
-            add(label[0]);
-        }
-        else 
-            JOptionPane.showMessageDialog(null,"No es posible crear disco, ya existe uno","ERROR",JOptionPane.ERROR_MESSAGE);
+        //edit properties
+        label[0].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+        label[0].setBackground(Color.WHITE);
+        label[0].setText("Empty Hard Disk Size: "+diskSize+" Gb");
+        label[0].setFont(fuente);
+        label[0].setOpaque(true);
+        label[0].setHorizontalAlignment(0);
+        label[0].setVerticalAlignment(0);
+        label[0].setHorizontalTextPosition(11);
+        label[0].setVerticalTextPosition(0);
+        add(label[0]);
     }
     
     void createLabel(int numberLabels) {
-        int X = 5, Y = 5, sizeX = 500, sizeY = 300/numberLabels;
+        int X = 5, Y = 5, sizeX = maxSizeX, sizeY = maxSizeY/numberLabels;
         Font fuente = new Font("Arial", 3, 14);
         //label[0] no es usado
         for(int index=1; index <= numberLabels; index++) {
@@ -292,14 +324,18 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PartitionStaticMultiValue.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PartitionStaticMultiValue1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PartitionStaticMultiValue.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PartitionStaticMultiValue1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PartitionStaticMultiValue.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PartitionStaticMultiValue1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PartitionStaticMultiValue.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PartitionStaticMultiValue1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -308,7 +344,7 @@ public class PartitionStaticMultiValue extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new PartitionStaticMultiValue().setVisible(true);
+                new PartitionStaticMultiValue1().setVisible(true);
             }
         });
     }
