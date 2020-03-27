@@ -23,22 +23,24 @@ import javax.swing.JOptionPane;
  * @author Omar Beltrán
  * RCS Reubicación Contigua Simple
  */
-public final class RCS extends javax.swing.JFrame {
+public final class GestionMemoria extends javax.swing.JFrame {
     private int blockSize;
-    private static final int LIMSUP = 180;
-    private static final int LIMINF = 1;
-    private int nFile;
-    private JLabel label[] = new JLabel[181];
-    private boolean isFree[] = new boolean[181];
+    private static final int SIZE = 27;
+    private static final int LIMSUP = SIZE;
+    private static final int LIMINF = 0;
+    private int nProcess;
+    private Color color;
+    private JLabel label[] = new JLabel[SIZE];
+    private boolean isFree[] = new boolean[SIZE];
     /**
      * Creates new form NewJFrame
      */
-    public RCS() {
+    public GestionMemoria() {
         initComponents();
         this.setTitle("Reubicación contigua simple");
         setLocationRelativeTo(this);
-        blockSize = 20;
-        nFile = 1;
+        blockSize = 10;
+        nProcess = 1;
         jTextArea1.append("Tamaño de bloque "+blockSize+" Kb\n");
         initIsFree();
         createLabel();
@@ -57,7 +59,10 @@ public final class RCS extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuAction = new javax.swing.JMenu();
-        jMenuAddFile = new javax.swing.JMenuItem();
+        jMenuAddProcess = new javax.swing.JMenuItem();
+        jMenuRelocation = new javax.swing.JMenuItem();
+        jMenuSPSV = new javax.swing.JMenuItem();
+        jMenuItemSPMV = new javax.swing.JMenuItem();
         jMenuClearAll = new javax.swing.JMenuItem();
         jMenuExit = new javax.swing.JMenuItem();
         jMenuConfiguration = new javax.swing.JMenu();
@@ -74,13 +79,33 @@ public final class RCS extends javax.swing.JFrame {
 
         jMenuAction.setText("Actions");
 
-        jMenuAddFile.setText("Add File");
-        jMenuAddFile.addActionListener(new java.awt.event.ActionListener() {
+        jMenuAddProcess.setText("Add Process");
+        jMenuAddProcess.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuAddFileActionPerformed(evt);
+                jMenuAddProcessActionPerformed(evt);
             }
         });
-        jMenuAction.add(jMenuAddFile);
+        jMenuAction.add(jMenuAddProcess);
+
+        jMenuRelocation.setText("Apply Relocation");
+        jMenuRelocation.setActionCommand("Apply Contiguos Relocation");
+        jMenuRelocation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuRelocationActionPerformed(evt);
+            }
+        });
+        jMenuAction.add(jMenuRelocation);
+
+        jMenuSPSV.setLabel("Static Partition Single Value");
+        jMenuSPSV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuSPSVActionPerformed(evt);
+            }
+        });
+        jMenuAction.add(jMenuSPSV);
+
+        jMenuItemSPMV.setLabel("Static Partition Multi Value");
+        jMenuAction.add(jMenuItemSPMV);
 
         jMenuClearAll.setText("Reset");
         jMenuClearAll.addActionListener(new java.awt.event.ActionListener() {
@@ -132,7 +157,7 @@ public final class RCS extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1081, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -140,27 +165,32 @@ public final class RCS extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(502, Short.MAX_VALUE))
+                .addContainerGap(96, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuAddFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuAddFileActionPerformed
+    private void jMenuAddProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuAddProcessActionPerformed
 
         if (blockSize == 0) {
             JOptionPane.showMessageDialog(null,"El tamaño de bloque no puede ser 0","ERROR",JOptionPane.ERROR_MESSAGE);
         }
         else {
-            int fileSize = Integer.parseInt(JOptionPane.showInputDialog("Enter file size Kb"));
+            int fileSize = Integer.parseInt(JOptionPane.showInputDialog("Enter process size Kb"));
             double start = getStartFileBlock(fileSize);
-            double end = getFinalFileBlock(start, fileSize);
-            jTextArea1.append("Archivo "+nFile+" -->  Tamaño: "+fileSize+", Bloque inicio "+(int)start+
-                ", Bloque final "+(int)end+"\n");
-            nFile++;
-            paintBlocks((int)start, (int)end, getColor(nFile));
+            if (start != -1) {
+                double end = getFinalFileBlock(start, fileSize);
+                jTextArea1.append("Proceso "+nProcess+" -->  Tamaño: "+fileSize+", Bloque inicio "+(int)start+
+                    ", Bloque final "+(int)end+"\n");
+                nProcess++;
+                paintBlocks((int)start, (int)end, getColor(nProcess));
+            }
+            else {
+                JOptionPane.showMessageDialog(null,"No hay espacio para cargar el proceso","ERROR",JOptionPane.ERROR_MESSAGE);
+            }
         }
-    }//GEN-LAST:event_jMenuAddFileActionPerformed
+    }//GEN-LAST:event_jMenuAddProcessActionPerformed
 
     private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
         System.exit(1);
@@ -183,27 +213,126 @@ public final class RCS extends javax.swing.JFrame {
     private void jMenuClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuClearAllActionPerformed
         paintBlocks(LIMINF, LIMSUP, Color.WHITE);
         initIsFree();
-        nFile = 1;
+        nProcess = 1;
     }//GEN-LAST:event_jMenuClearAllActionPerformed
 
+    private void jMenuRelocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuRelocationActionPerformed
+        contiguosRelocation();
+    }//GEN-LAST:event_jMenuRelocationActionPerformed
+
+    private void jMenuSPSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuSPSVActionPerformed
+        if (blockSize == 0) {
+            JOptionPane.showMessageDialog(null,"El tamaño de bloque debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
+        }
+        else {
+            memoryPartition();
+        }
+    }//GEN-LAST:event_jMenuSPSVActionPerformed
+
+    private void contiguosRelocation() {
+        int indexNextProcess, indexBegin;
+        for(int index = 0; index < LIMSUP; index++) {
+            if( isFreePartition(index)) {
+                indexNextProcess = findNextProcess(index);
+                if (indexNextProcess != -1) {
+                    color = label[indexNextProcess].getBackground();
+                    indexBegin = relocateProcess(index, indexNextProcess);
+                    index = indexBegin-1;
+                }    
+            }
+        }
+    }
+    
+    private int relocateProcess(int destination, int source) {
+        int length = getProcessLength(source);
+        int start = destination;
+        paintBlocks(start, (start+length)-1, color);
+        if ((start+length)-1 > source)
+            paintBlocks(start+length, (source+length)-1);
+        else    
+            paintBlocks(source, (source+length)-1);
+        return start+length;
+    }
+      
+    private void setIsFree(int start, int end, boolean value) {
+        for (int index = start ; index < end ; index++) {
+            isFree[index]= value;
+        }
+    }
+    
+    private int getProcessLength(int index) {
+        int lenght = 1;
+        for (int index2 = index+1; index2 < LIMSUP; index2++) {
+            if(label[index].getBackground() == label[index2].getBackground()) {
+                lenght++;
+            }
+            else {
+                index2=LIMSUP+1;
+            }    
+        }    
+        return lenght;
+    }
+    
+    private int findNextProcess(int index) {
+        int indexProcess = -1;
+        for(; index < LIMSUP; index++) {
+           if(!isFreePartition(index)) {
+               indexProcess = index;
+               index = LIMSUP+1;
+           }  
+        }
+        return indexProcess;
+    }
+    
+    private void memoryPartition() {
+        for(int index=0; index < LIMSUP; index++) {
+            this.remove(label[index]);
+        }
+        dropLabels();
+        createLabel();
+    }
+    
+    private void dropLabels() {
+        label = null;
+        label = new JLabel[SIZE];
+        isFree = null;
+        isFree = new boolean[SIZE];
+        initIsFree();
+    }
+    
+    private void setLabelText() {
+        for(int index=0; index < LIMSUP; index++) {
+            label[index].setText(String.valueOf(index*blockSize));
+        }
+    }
+    
     private int getStartFileBlock(int fileSize) {
         int start;
         int trying = 0;
         do{
             start = (int) Math.floor(Math.random() * (LIMSUP-LIMINF + 1) + LIMINF);
             trying++;
-        }while(!isFreeBuffer(start, fileSize) || trying == 500);
+            if (trying > 100)
+                return -1;
+        }while(!isFreeBuffer(start, fileSize));
+        
         return start;
     }
     
     private boolean isFreeBuffer(double start, int fileSize) {
         double end = getFinalFileBlock(start, fileSize);
-        for (int index = (int)start ; index <= end ; index++) {
+        if (end >= LIMSUP-1)
+            return false;
+        for (int index = (int)start ; index < end ; index++) {
             if (!isFree[index]) {
                 return false;
             }
         }
         return true;
+    }
+    
+    private boolean isFreePartition(int index) { 
+        return isFree[index];
     }
     
     private double getFinalFileBlock(double startBlock, double fileSize) {
@@ -216,6 +345,13 @@ public final class RCS extends javax.swing.JFrame {
         for (int index = start ; index <= end ; index++) {
             label[index].setBackground(color);
             isFree[index] = false;
+        }
+    }
+    
+    private void paintBlocks(int start, int end) {
+        for (int index = start ; index <= end ; index++) {
+            label[index].setBackground(Color.WHITE);
+            isFree[index] = true;
         }
     }
     
@@ -246,14 +382,14 @@ public final class RCS extends javax.swing.JFrame {
         int X = 5, Y = 110, size = 40;
         Font fuente = new Font("Arial", 3, 9);
         //label[0] no es usado
-        for(int index=1; index <= 180; index++) {
+        for(int index=0; index < LIMSUP; index++) {
             label[index]= new JLabel("lbl" +index);
-            label[index].setBounds(X, Y, size, size);
+            label[index].setBounds(X, Y, size, 2*size);
             
             //edit properties
             label[index].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
             label[index].setBackground(Color.WHITE);
-            label[index].setText(String.valueOf(index));
+            label[index].setText(String.valueOf(index*blockSize));
             label[index].setFont(fuente);
             label[index].setOpaque(true);
             label[index].setHorizontalAlignment(10);
@@ -262,15 +398,11 @@ public final class RCS extends javax.swing.JFrame {
             label[index].setVerticalTextPosition(0);
             add(label[index]);
             X = X+size;
-            if(index%15 == 0) {
-                Y = Y+size;
-                X = 5;
-            }
         }
     }
     
     private void initIsFree() {
-        for(int index = 0; index <= 120; index++) {
+        for(int index = 0; index < LIMSUP; index++) {
             isFree[index] = true;
         }
     }
@@ -291,28 +423,30 @@ public final class RCS extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(RCS.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GestionMemoria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(RCS.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GestionMemoria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(RCS.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GestionMemoria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(RCS.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GestionMemoria.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new RCS().setVisible(true);
+                new GestionMemoria().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenuAction;
-    private javax.swing.JMenuItem jMenuAddFile;
+    private javax.swing.JMenuItem jMenuAddProcess;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuBlockSize;
     private javax.swing.JMenuItem jMenuClearAll;
@@ -320,6 +454,9 @@ public final class RCS extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuExit;
     private javax.swing.JMenu jMenuHelp;
     private javax.swing.JMenuItem jMenuItemCredits;
+    private javax.swing.JMenuItem jMenuItemSPMV;
+    private javax.swing.JMenuItem jMenuRelocation;
+    private javax.swing.JMenuItem jMenuSPSV;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables

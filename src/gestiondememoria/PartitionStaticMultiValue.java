@@ -1,7 +1,14 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Desarrollar un programa o programas que simulen lo siguiente:
+1 Gestión de memoria:
+a. Reubicación contigua simple
+b. Particiones estáticas un sólo tamaño
+c. Particiones estáticas de varios tamaños
+d. Particiones dinámicas.
+e. Segmentación
+f. Paginación  
+Comparar y medir la fragmentaciòn después de terminar la ubicación de los archivos en memoria
+http://sistemasopers.blogspot.com/2015/09/particiones-fijas-y-dinamicas.html
  */
 package gestiondememoria;
 
