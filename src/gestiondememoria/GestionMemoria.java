@@ -25,13 +25,22 @@ import javax.swing.JOptionPane;
  */
 public final class GestionMemoria extends javax.swing.JFrame {
     private int blockSize;
+    private boolean isDinamic = false;
+    private boolean isStatic = false;
+    private static int dinamicIndex = 0;
+    private static final int startX = 5;
+    private static final int startY = 110;
     private static final int SIZE = 27;
     private static final int LIMSUP = SIZE;
+    private static int startDinamicX = startX;
+    private static final int startDinamicY = startY;
     private static final int LIMINF = 0;
     private int nProcess;
     private Color color;
-    private JLabel label[] = new JLabel[SIZE];
+    private JLabel[] staticPartition = new JLabel[SIZE];
+    private JLabel[] dinamicPartition = new JLabel[SIZE];
     private boolean isFree[] = new boolean[SIZE];
+    private int maxWidth;
     /**
      * Creates new form NewJFrame
      */
@@ -43,7 +52,8 @@ public final class GestionMemoria extends javax.swing.JFrame {
         nProcess = 1;
         jTextArea1.append("Tamaño de bloque "+blockSize+" Kb\n");
         initIsFree();
-        createLabel();
+        maxWidth = this.getWidth();
+        //createStaticLabel();
     }
 
     /**
@@ -71,6 +81,7 @@ public final class GestionMemoria extends javax.swing.JFrame {
         jMenuItemCredits = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1110, 260));
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -105,6 +116,11 @@ public final class GestionMemoria extends javax.swing.JFrame {
         jMenuAction.add(jMenuSPSV);
 
         jMenuItemSPMV.setLabel("Static Partition Multi Value");
+        jMenuItemSPMV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemSPMVActionPerformed(evt);
+            }
+        });
         jMenuAction.add(jMenuItemSPMV);
 
         jMenuClearAll.setText("Reset");
@@ -172,7 +188,6 @@ public final class GestionMemoria extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuAddProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuAddProcessActionPerformed
-
         if (blockSize == 0) {
             JOptionPane.showMessageDialog(null,"El tamaño de bloque no puede ser 0","ERROR",JOptionPane.ERROR_MESSAGE);
         }
@@ -225,9 +240,18 @@ public final class GestionMemoria extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null,"El tamaño de bloque debe ser mayor que 0","ERROR",JOptionPane.ERROR_MESSAGE);
         }
         else {
-            memoryPartition();
+            createStaticLabel();
+            isStatic = true;
+            isDinamic = false;
         }
     }//GEN-LAST:event_jMenuSPSVActionPerformed
+
+    private void jMenuItemSPMVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSPMVActionPerformed
+        int partitionSize = Integer.parseInt(JOptionPane.showInputDialog("Enter process size Kb"));
+        createDinamicLabel(partitionSize);
+        isDinamic = true;
+        isStatic = false;
+    }//GEN-LAST:event_jMenuItemSPMVActionPerformed
 
     private void contiguosRelocation() {
         int indexNextProcess, indexBegin;
@@ -235,7 +259,7 @@ public final class GestionMemoria extends javax.swing.JFrame {
             if( isFreePartition(index)) {
                 indexNextProcess = findNextProcess(index);
                 if (indexNextProcess != -1) {
-                    color = label[indexNextProcess].getBackground();
+                    color = staticPartition[indexNextProcess].getBackground();
                     indexBegin = relocateProcess(index, indexNextProcess);
                     index = indexBegin-1;
                 }    
@@ -263,7 +287,7 @@ public final class GestionMemoria extends javax.swing.JFrame {
     private int getProcessLength(int index) {
         int lenght = 1;
         for (int index2 = index+1; index2 < LIMSUP; index2++) {
-            if(label[index].getBackground() == label[index2].getBackground()) {
+            if(staticPartition[index].getBackground() == staticPartition[index2].getBackground()) {
                 lenght++;
             }
             else {
@@ -285,24 +309,37 @@ public final class GestionMemoria extends javax.swing.JFrame {
     }
     
     private void memoryPartition() {
-        for(int index=0; index < LIMSUP; index++) {
-            this.remove(label[index]);
-        }
-        dropLabels();
-        createLabel();
+        dropStaticLabels();
+        createStaticLabel();
     }
     
-    private void dropLabels() {
-        label = null;
-        label = new JLabel[SIZE];
+    private void dropStaticLabels() {
+        for(int index=0; index < LIMSUP; index++) {
+            this.remove(staticPartition[index]);
+        }
+        staticPartition = null;
+        staticPartition = new JLabel[SIZE];
         isFree = null;
         isFree = new boolean[SIZE];
         initIsFree();
+        this.repaint();
+    }
+    
+    private void dropDinamicLabels() {
+        if (isDinamic) {
+            for(int index=0; index < LIMSUP; index++) {
+                this.remove(dinamicPartition[index]);
+            }
+            dinamicPartition = null;
+            dinamicPartition = new JLabel[SIZE];
+            this.repaint();
+            isDinamic = false;
+        }
     }
     
     private void setLabelText() {
         for(int index=0; index < LIMSUP; index++) {
-            label[index].setText(String.valueOf(index*blockSize));
+            staticPartition[index].setText(String.valueOf(index*blockSize));
         }
     }
     
@@ -343,14 +380,14 @@ public final class GestionMemoria extends javax.swing.JFrame {
     
     private void paintBlocks(int start, int end, Color color) {
         for (int index = start ; index <= end ; index++) {
-            label[index].setBackground(color);
+            staticPartition[index].setBackground(color);
             isFree[index] = false;
         }
     }
     
     private void paintBlocks(int start, int end) {
         for (int index = start ; index <= end ; index++) {
-            label[index].setBackground(Color.WHITE);
+            staticPartition[index].setBackground(Color.WHITE);
             isFree[index] = true;
         }
     }
@@ -378,27 +415,47 @@ public final class GestionMemoria extends javax.swing.JFrame {
         }
     }
     
-    void createLabel() {
+    void createStaticLabel() {
         int X = 5, Y = 110, size = 40;
         Font fuente = new Font("Arial", 3, 9);
-        //label[0] no es usado
         for(int index=0; index < LIMSUP; index++) {
-            label[index]= new JLabel("lbl" +index);
-            label[index].setBounds(X, Y, size, 2*size);
-            
+            staticPartition[index]= new JLabel("lbl" +index);
+            staticPartition[index].setBounds(X, Y, size, 2*size);
             //edit properties
-            label[index].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
-            label[index].setBackground(Color.WHITE);
-            label[index].setText(String.valueOf(index*blockSize));
-            label[index].setFont(fuente);
-            label[index].setOpaque(true);
-            label[index].setHorizontalAlignment(10);
-            label[index].setVerticalAlignment(1);
-            label[index].setHorizontalTextPosition(11);
-            label[index].setVerticalTextPosition(0);
-            add(label[index]);
+            staticPartition[index].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+            staticPartition[index].setBackground(Color.WHITE);
+            staticPartition[index].setText(String.valueOf(index*blockSize));
+            staticPartition[index].setFont(fuente);
+            staticPartition[index].setOpaque(true);
+            staticPartition[index].setHorizontalAlignment(10);
+            staticPartition[index].setVerticalAlignment(1);
+            staticPartition[index].setHorizontalTextPosition(11);
+            staticPartition[index].setVerticalTextPosition(0);
+            add(staticPartition[index]);
             X = X+size;
         }
+        this.repaint();
+    }
+    
+    void createDinamicLabel(int size) {
+        Font fuente = new Font("Arial", 3, 9);
+        dinamicPartition[dinamicIndex]= new JLabel("lbl" +dinamicIndex);
+        dinamicPartition[dinamicIndex].setBounds(startDinamicX, startDinamicY, size, 80);
+        //edit properties
+        dinamicPartition[dinamicIndex].setBorder(BorderFactory.createEtchedBorder(Color.WHITE,Color.LIGHT_GRAY));
+        dinamicPartition[dinamicIndex].setBackground(Color.WHITE);
+        dinamicPartition[dinamicIndex].setText(String.valueOf(startDinamicX-5));
+        dinamicPartition[dinamicIndex].setFont(fuente);
+        dinamicPartition[dinamicIndex].setOpaque(true);
+        dinamicPartition[dinamicIndex].setHorizontalAlignment(10);
+        dinamicPartition[dinamicIndex].setVerticalAlignment(1);
+        dinamicPartition[dinamicIndex].setHorizontalTextPosition(11);
+        dinamicPartition[dinamicIndex].setVerticalTextPosition(0);
+        dinamicPartition[dinamicIndex].setVisible(true);
+        add(dinamicPartition[dinamicIndex]);
+        startDinamicX = startDinamicX+size;
+        dinamicIndex++;
+        this.repaint();
     }
     
     private void initIsFree() {
